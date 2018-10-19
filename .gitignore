@@ -1,0 +1,28 @@
+/node_modules
+/vendor
+/.idea
+/.vscode
+/.vagrant
+npm-debug.log
+yarn-error.log
+.phpunit.result.cache
+.editorconfig
+
+# Laravel 4 specific
+bootstrap/compiled.php
+app/storage/
+/storage/*.key
+
+# Laravel 5 & Lumen specific
+/public/storage
+/public/hot
+storage/*.key
+.env.*.php
+.env.php
+.env
+.env.example
+Homestead.yaml
+Homestead.json
+
+# Rocketeer PHP task runner and deployment package. https://github.com/rocketeers/rocketeer
+.rocketeer/
