@@ -54,7 +54,10 @@
                         </div>
 
                         <div class="text-center mt-3">
-                            <button type="submit" class="btn btn-lg btn-primary">{{ __('Sign up') }}</button>
+                            <button type="submit" class="btn btn-lg btn-primary btn-block mb-2 mt-4">{{ __('Sign up') }}</button>
+                        </div>
+                        <div class="text-center">
+                            Already have an account? <a href="{{ route('login') }}">Sign in</a>
                         </div>
                     </form>
                 </div>
