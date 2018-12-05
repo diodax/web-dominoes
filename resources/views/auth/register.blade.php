@@ -17,7 +17,7 @@
 
                         <div class="form-group">
                             <label for="username">{{ __('Username') }}</label>
-                            <input id="username" class="form-control form-control-lg{{ $errors->has('username') ? ' is-invalid' : '' }}" type="text" name="username" placeholder="Enter your username" value="{{ old('username') }}" required autofocus/>
+                            <input id="username" class="form-control form-control-lg{{ $errors->has('username') ? ' is-invalid' : '' }}" type="text" name="username" placeholder="Enter your username" value="{{ old('username') }}" required/>
 
                             @if ($errors->has('username'))
                                 <span class="invalid-feedback" role="alert">

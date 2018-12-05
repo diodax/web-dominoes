@@ -15,13 +15,17 @@ Route::get('/', function () {
     return view('landing');
 });
 
-Route::get('/home', 'HomeController@index')->name('home');
-
 // Registration Routes...
 Route::get('/register', 'Auth\RegisterController@showRegistrationForm')->name('register');
 Route::post('/register', 'Auth\RegisterController@register');
 
 // Authentication Routes...
-Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
-Route::post('login', 'Auth\LoginController@login');
-Route::post('logout', 'Auth\LoginController@logout')->name('logout');
+Route::get('/login', 'Auth\LoginController@showLoginForm')->name('login');
+Route::post('/login', 'Auth\LoginController@login');
+Route::post('/logout', 'Auth\LoginController@logout')->name('logout');
+
+// Chat Room route
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/home', 'Chat\ChatController@show');
+    Route::get('/chat/{id}', 'Chat\ChatController@show')->name('chat');
+});
