@@ -33,9 +33,10 @@
         @include('layouts.footer')
         <!-- Scripts -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-        <script src="{{ url('/js/jquery-3.3.1.slim.min.js') }}"></script>
+        <script src="{{ url('/js/jquery-3.3.1.min.js') }}"></script>
         <script src="{{ url('/js/popper.min.js') }}"></script>
         <script src="{{ url('/js/bootstrap.min.js') }}"></script>
-        <script src="{{ asset('js/robust.js') }}"></script>
+        {{-- <script src="{{ asset('js/robust.js') }}"></script> --}}
+        @yield('js')
     </body>
 </html>

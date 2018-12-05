@@ -32,5 +32,6 @@
         <script src="{{ url('/js/popper.min.js') }}"></script>
         <script src="{{ url('/js/bootstrap.min.js') }}"></script>
         <script src="{{ asset('js/bundle.js') }}"></script>
+        @yield('js')
     </body>
 </html>
