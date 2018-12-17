@@ -250,6 +250,14 @@ class GameState
                     if ($this->player1->hand->isEmpty()) {
                         $this->isGameOver = true;
                         $this->player1->isWinner = true;
+
+                        $game = Game::find($this->id);
+                        $game->is_finished = true;
+                        $game->save();
+
+                        $player = Player::find($this->player1->id);
+                        $player->is_winner = true;
+                        $player->save();
                     }
                 } else {
                     $this->currentPlayer = $this->player1->username;
@@ -272,6 +280,14 @@ class GameState
                     if ($this->player2->hand->isEmpty()) {
                         $this->isGameOver = true;
                         $this->player2->isWinner = true;
+
+                        $game = Game::find($this->id);
+                        $game->is_finished = true;
+                        $game->save();
+
+                        $player = Player::find($this->player2->id);
+                        $player->is_winner = true;
+                        $player->save();
                     }
                 }
             break;
