@@ -10,6 +10,10 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+app()->singleton('GameCenterService', function(){
+    return new \App\Services\GameCenterService;
+});
+
 
 Route::get('/', function () {
     return view('landing');
@@ -26,6 +30,14 @@ Route::post('/logout', 'Auth\LoginController@logout')->name('logout');
 
 // Chat Room route
 Route::group(['middleware' => ['auth']], function () {
-    Route::get('/home', 'Chat\ChatController@show');
+    Route::get('/home', 'Chat\ChatController@show')->name('home');
     Route::get('/chat/{id}', 'Chat\ChatController@show')->name('chat');
+});
+
+// Game route
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/game/create', 'GameController@create')->name('game.create');
+    Route::get('/game/{id}', 'GameController@show')->name('game');
+    Route::post('/game/{id}/submit', 'GameController@submitTurn')->name('game.submit');
+    Route::post('/game/{id}/check', 'GameController@checkTurn')->name('game.check');
 });
