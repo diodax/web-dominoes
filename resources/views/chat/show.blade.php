@@ -6,14 +6,39 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header">Members</div>
-                    <div class="card-body">
-                        <div id="members_output" class="pre-scrollable" style="height: 600px">
-                            @foreach($members as $member)
-                                <span>{{$member->user->username}}</span>
-                                <br><br>
-                            @endforeach
-                        </div>
+                    <div id="members_output" class="pre-scrollable list-group list-group-flush" style="height: 600px">
+                        @foreach($members as $member)
+                            <div class="list-group-item">
+                                <div class="media">
+                                    <div class="media-body d-none d-lg-block ml-2">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">{{$member->user->username}}</h6>
+                                            @switch($member->status)
+                                                @case(constant('App\ChatMemberStatus::ONLINE'))
+                                                    <span class="badge badge-pill badge-success">Online</span>
+                                                    <div>
+                                                        <a href="{{route('game.create', [ 'first_user' => auth()->id(), 'second_user' => $member->user_id ])}}" class="btn btn-sm float-right">Challenge</a>
+                                                    </div>
+                                                    @break
+                                                @case(constant('App\ChatMemberStatus::PLAYING'))
+                                                    <span class="badge badge-pill badge-danger">Playing</span>
+                                                    <div>
+                                                        <button class="btn btn-sm float-right" disabled>Challenge</button>
+                                                    </div>
+                                                    @break
+                                                @default
+                                                    <span class="badge badge-pill badge-secondary">Offline</span>
+                                                    <div>
+                                                        <button class="btn btn-sm float-right" disabled>Challenge</button>
+                                                    </div>
+                                            @endswitch
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
+
                 </div>
             </div>
 
@@ -121,7 +146,33 @@
             $('#members_output').html("");
 
             members.forEach(function (item, index) {
-                $('#members_output').append('<span>' + item.user.username + '</span><br><br>');
+
+                var badge = '';
+                switch (item.status.toString()) {
+                    case "{{ constant('App\ChatMemberStatus::ONLINE') }}":
+                        badge = `<span class="badge badge-pill badge-success">Online</span>
+                                <div><a href="/game/create?first_user={{auth()->id()}}&second_user=${item.user_id}" class="btn btn-sm float-right">Challenge</a></div>`;
+                        break;
+                    case "{{ constant('App\ChatMemberStatus::PLAYING') }}":
+                        badge = `<span class="badge badge-pill badge-danger">Playing</span>
+                                <div><button class="btn btn-sm float-right" disabled>Challenge</button></div>`;
+                        break;
+                    default:
+                        badge = `<span class="badge badge-pill badge-secondary">Offline</span>
+                                <div><button class="btn btn-sm float-right" disabled>Challenge</button></div>`;
+                }
+
+                $('#members_output').append(
+                    `<div class="list-group-item">
+                        <div class="media">
+                            <div class="media-body d-none d-lg-block ml-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">${item.user.username}</h6>
+                                    ${badge}
+                                </div>
+                            </div>
+                        </div>
+                    </div>`);
             });
         }
     </script>
