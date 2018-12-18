@@ -47,10 +47,24 @@
                                     @php ($playerHand = $gameState->player1->hand)
                                     @php ($opponenthand = $gameState->player2->hand)
                                     @php ($validPlayerPlays = $gameState->player1->validPlays)
+                                    @php ($playerUsername = $gameState->player1->username)
+                                    @php ($opponentUsername = $gameState->player2->username)
                                 @else
                                     @php ($playerHand = $gameState->player2->hand)
                                     @php ($opponenthand = $gameState->player1->hand)
                                     @php ($validPlayerPlays = $gameState->player2->validPlays)
+                                    @php ($playerUsername = $gameState->player2->username)
+                                    @php ($opponentUsername = $gameState->player1->username)
+                                @endif
+
+                                @php ($isMyTurn = (Auth::user()->username == $gameState->currentPlayer))
+
+                                @if ($isMyTurn)
+                                    @php ($playerStatus = "Making a play...")
+                                    @php ($opponentStatus = "Waiting for turn...")
+                                @else
+                                    @php ($playerStatus = "Waiting for turn...")
+                                    @php ($opponentStatus = "Making a play...")
                                 @endif
 
                                 <svg id="boneyard" x="900" y="730" width="200" height="150" style="overflow: visible;">
@@ -70,6 +84,32 @@
                                         @if (count($validPlayerPlays) > 0 || Auth::user()->username != $gameState->currentPlayer)
                                             <image x="11%" y="20%" width="60" height="120" opacity="0.5" xlink:href="/img/bones/bone-grey.png" />
                                         @endif
+                                </svg>
+
+                                <svg id="playerInfo" x="-250" y="730" width="250" height="150" style="overflow: visible;">
+                                        <!-- Rounded corner rect element -->
+                                        <foreignobject x="0" y="20" width="100%" height="100%">
+                                            <div class="card" style="background-color: #f1f7fa;">
+                                                <br/><br/><br/><br/><br/><br/>
+                                            </div>
+                                        </foreignobject>
+                                        <text class="svg-text" font-weight="bold" x="10%" y="50" fill="black">Player:</text>
+                                        <text class="svg-text" x="20%" y="80" fill="black">{{$playerUsername}}</text>
+                                        <text class="svg-text" font-weight="bold" x="10%" y="115" fill="black">Status:</text>
+                                        <text class="svg-text" x="20%" y="145" fill="black">{{$playerStatus}}</text>
+                                </svg>
+
+                                <svg id="opponentInfo" x="-250" y="15" width="250" height="150" style="overflow: visible;">
+                                        <!-- Rounded corner rect element -->
+                                        <foreignobject x="0" y="0" width="100%" height="100%">
+                                            <div class="card" style="background-color: #f1f7fa;">
+                                                <br/><br/><br/><br/><br/><br/>
+                                            </div>
+                                        </foreignobject>
+                                        <text class="svg-text" font-weight="bold" x="10%" y="30" fill="black">Player:</text>
+                                        <text class="svg-text" x="20%" y="60" fill="black">{{$opponentUsername}}</text>
+                                        <text class="svg-text" font-weight="bold" x="10%" y="95" fill="black">Status:</text>
+                                        <text class="svg-text" x="20%" y="125" fill="black">{{$opponentStatus}}</text>
                                 </svg>
 
                                 <!-- A wrapper svg for each player's hand, to create a new positioning context for the tiles -->
@@ -155,7 +195,8 @@
     <script src="{{ url('/js/svg-pan-zoom.min.js') }}"></script>
     <script>
         $(document).ready(function() {
-            if (window.timerId === undefined) {
+            window.isMyTurn = @json($isMyTurn);
+            if ((window.timerId === undefined) && !isMyTurn) {
                 window.timerId = setInterval(checkTurn, 2000);
             }
 
@@ -221,6 +262,9 @@
             var rootHead = @json($gameState->tree->head);
             var rootTail = @json($gameState->tree->tail);
 
+            var leftRootId = @json($gameState->tree->leftBranch->id);
+            var rightRootId = @json($gameState->tree->rightBranch->id);
+
             var svgArray = svgobj.id.split("-");
             var bone = {
                 id: svgobj.id,
@@ -248,7 +292,7 @@
                 });
             }
             if ((rootId == null || svgArray.includes(rootHead.toString()) || svgArray.includes(rootTail.toString())) &&
-                (leftBranchLeaf == null || rightBranchLeaf == null)) {
+                (leftRootId == null || rightRootId == null)) {
                 $('.rootLeaf').removeClass('invisible');
                 // Set a click event on the corresponding domino bone
                 $('#rootShadow').click(function(e){
@@ -318,11 +362,10 @@
                 data: JSON.stringify({}),
                 contentType: 'application/json',
                 success: function (response) {
-                    if (response === true) {
+                    if (response === true && !window.isMyTurn) {
                         clearInterval(window.timerId);
-                        if (window.timerId === undefined) {
-                            location.reload(true);
-                        }
+                        window.isMyTurn = response;
+                        location.reload(true);
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) { // What to do if we fail
