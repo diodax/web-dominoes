@@ -184,7 +184,7 @@
             members.forEach(function (item, index) {
                 var challengeButton = '';
                 var isMeText = '';
-                if (currentMember != item.user.username) {
+                if (currentMember != (item.user.username || "")) {
                     challengeButton = `<div><a href="/game/create?first_user={{auth()->id()}}&second_user=${item.user_id}" class="btn btn-outline-info btn-sm float-right">Challenge</a></div>`;
                 } else {
                     isMeText = "(You)";
