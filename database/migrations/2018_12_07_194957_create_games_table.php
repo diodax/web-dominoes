@@ -20,6 +20,7 @@ class CreateGamesTable extends Migration
             $table->integer('score_to_win')->default(10);
             $table->integer('rounds_completed')->default(0);
             $table->boolean('is_finished')->default(false);
+            $table->text('game_state')->nullable();
             $table->timestamps();
 
             $table->foreign('player_1_id')->references('id')->on('players');

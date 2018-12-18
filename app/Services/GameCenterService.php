@@ -6,41 +6,58 @@ use App\Models\GameState;
 use App\Game;
 use App\User;
 use App\Player;
+use App\Transformers\GameStateTransformer;
+use App\Transformers\TreeTransformer;
+use App\Transformers\NodeTransformer;
+use Karriere\JsonDecoder\JsonDecoder;
 
 class GameCenterService
 {
+    public $jsonDecoder;
+
     public function __construct()
     {
-        //
+        $this->jsonDecoder = new JsonDecoder();
+        $this->jsonDecoder->register(new GameStateTransformer());
+        $this->jsonDecoder->register(new TreeTransformer());
+        $this->jsonDecoder->register(new NodeTransformer());
     }
 
     public function get($id, $request)
     {
-        // if the session doesnt have the game object, create a new instance and return that
-        if ($request->session()->has($id)) {
-            return $request->session()->get((string)$id);
-        } else {
+        $game = Game::find($id);
+        if (is_null($game->game_state)) {
             return $this->create($id, $request);
+        } else {
+            $gameState = $this->jsonDecoder->decode($game->game_state, GameState::class);
+            return $gameState;
         }
     }
 
     public function create($id, $request)
     {
         $game = Game::find($id);
-        $gameState = new GameState($game);
-        $request->session()->put((string)$id, $gameState);
+        $gameState = new GameState;
+        $gameState->create($game);
+        $game->game_state = json_encode($gameState);
+        $game->save();
         return $gameState;
     }
 
     public function save($id, GameState $game, $request)
     {
-        $gameState = $request->session()->put((string)$id, $game);
-        return $gameState;
+        $gameRecord = Game::find($id);
+        $gameRecord->game_state = json_encode($game);
+        $gameRecord->save();
+        return $game;
     }
 
     public function destroy($id, $request)
     {
-        $gameState = $request->session()->pull((string)$id);
+        $game = Game::find($id);
+        $gameState = $this->jsonDecoder->decode($game->game_state, GameState::class);
+        $game->game_state = null;
+        $game->save();
         return $gameState;
     }
 

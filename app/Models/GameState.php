@@ -18,13 +18,20 @@ class GameState
     public $isGameOver;
     public $tree;
 
-    public function __construct(Game $game)
+    public function __construct()
+    {
+        //
+    }
+
+    public function create(Game $game)
     {
         $this->id = $game->id;
         $this->isGameOver = false;
         $this->currentTurn = 0;
-        $this->player1 = new PlayerInfo(Player::find($game->player_1_id));
-        $this->player2 = new PlayerInfo(Player::find($game->player_2_id));
+        $this->player1 = new PlayerInfo;
+        $this->player1->create(Player::find($game->player_1_id));
+        $this->player2 = new PlayerInfo;
+        $this->player2->create(Player::find($game->player_2_id));
         $this->player1->hand = collect();
         $this->player2->hand = collect();
         $this->tree = new Tree;
@@ -95,9 +102,9 @@ class GameState
 
         // Get the player's hand
         if ($this->currentPlayer === $this->player1->username) {
-            $hand = $this->player1->hand;
+            $hand = collect($this->player1->hand);
         } else {
-            $hand = $this->player2->hand;
+            $hand = collect($this->player2->hand);
         }
 
         // Validate based on the move type
@@ -111,7 +118,7 @@ class GameState
                 $head = $move['bone']['head'];
                 $tail = $move['bone']['tail'];
                 $isInHand = $hand->contains(function ($val, $key) use ($head, $tail) {
-                    return $val->head == $head && $val->tail == $tail;
+                    return $val['head'] == $head && $val['tail'] == $tail;
                 });
 
                 if (!$isInHand) { return false; }
@@ -166,15 +173,45 @@ class GameState
         switch ($move['type']) {
             case 'DRAW':
                 // Shuffle the boneyard, pick a card and put it on the player's hand
+                $this->boneyard = collect($this->boneyard);
                 $this->boneyard = $this->boneyard->shuffle();
                 $bone = $this->boneyard->pop();
 
+                $leftBranchLeaf = $this->tree->leftBranchLeaf;
+                $rightBranchLeaf = $this->tree->rightBranchLeaf;
+
                 if ($username === $this->player1->username) {
+                    $this->player1->hand = collect($this->player1->hand);
                     $this->player1->hand->push($bone);
-                    // Update valid plays here
+                    // Update valid plays for Player1
+                    $validPlayer1Plays = array();
+                    $hand1 = collect($this->player1->hand);
+
+                    $playableBones1 = $hand1->filter(function ($val, $key) use ($leftBranchLeaf, $rightBranchLeaf) {
+                        return $val['head'] === $leftBranchLeaf || $val['tail'] === $rightBranchLeaf ||
+                               $val['head'] === $rightBranchLeaf || $val['tail'] === $leftBranchLeaf;
+                    });
+
+                    foreach ($playableBones1 as $bone) {
+                        $validPlayer1Plays[] = $bone['head'].'-'.$bone['tail'];
+                    }
+                    $this->player1->validPlays = $validPlayer1Plays;
                 } elseif ($username === $this->player2->username) {
+                    $this->player2->hand = collect($this->player2->hand);
                     $this->player2->hand->push($bone);
-                    // Update valid plays here
+                    // Update valid plays for Player2
+                    $validPlayer2Plays = array();
+                    $hand2 = collect($this->player2->hand);
+
+                    $playableBones2 = $hand2->filter(function ($val, $key) use ($leftBranchLeaf, $rightBranchLeaf) {
+                        return $val['head'] === $leftBranchLeaf || $val['tail'] === $rightBranchLeaf ||
+                               $val['head'] === $rightBranchLeaf || $val['tail'] === $leftBranchLeaf;
+                    });
+
+                    foreach ($playableBones2 as $bone) {
+                        $validPlayer2Plays[] = $bone['head'].'-'.$bone['tail'];
+                    }
+                    $this->player2->validPlays = $validPlayer2Plays;
                 }
             break;
             case 'LAY':
@@ -212,14 +249,16 @@ class GameState
                 $tail = $node->tail;
                 if ($username === $this->player1->username) {
                     // Remove from Player1's hand
-                    $this->player1->hand = $this->player1->hand->reject(function ($val, $key) use ($head, $tail) {
-                        return $val->head == $head && $val->tail == $tail;
+                    $hand1 = collect($this->player1->hand);
+                    $this->player1->hand = $hand1->reject(function ($val, $key) use ($head, $tail) {
+                        return $val['head'] == $head && $val['tail'] == $tail;
                     });
 
                 } else {
                     // Remove from Player2's hand
-                    $this->player2->hand = $this->player2->hand->reject(function ($val, $key) use ($head, $tail) {
-                        return $val->head == $head && $val->tail == $tail;
+                    $hand2 = collect($this->player2->hand);
+                    $this->player2->hand = $hand2->reject(function ($val, $key) use ($head, $tail) {
+                        return $val['head'] == $head && $val['tail'] == $tail;
                     });
                 }
 
@@ -228,16 +267,29 @@ class GameState
                 $leftBranchLeaf = $this->tree->leftBranchLeaf;
                 $rightBranchLeaf = $this->tree->rightBranchLeaf;
 
+                if (is_null($leftBranchLeaf) && !is_null($this->tree->id)) {
+                    $leftBranchLeaf = $this->tree->head;
+                    $this->tree->leftBranchLeaf = $leftBranchLeaf;
+                    $this->tree->leftLeafId = $this->tree->id;
+                }
+
+                if (is_null($rightBranchLeaf) && !is_null($this->tree->id)) {
+                    $rightBranchLeaf = $this->tree->tail;
+                    $this->tree->rightBranchLeaf = $rightBranchLeaf;
+                    $this->tree->rightLeafId = $this->tree->id;
+                }
+
                 // Update validPlays for the next turn
                 if ($this->currentPlayer === $this->player1->username) {
                     $this->currentPlayer = $this->player2->username;
                     // Update validPlays for Player2 and clear it for Player1
                     $this->player1->validPlays = array();
                     $validPlayer2Plays = array();
+                    $hand2 = collect($this->player2->hand);
 
-                    $playableBones2 = $this->player2->hand->filter(function ($val, $key) use ($leftBranchLeaf, $rightBranchLeaf) {
-                        return $val->head === $leftBranchLeaf || $val->tail === $rightBranchLeaf ||
-                               $val->head === $rightBranchLeaf || $val->tail === $leftBranchLeaf;
+                    $playableBones2 = $hand2->filter(function ($val, $key) use ($leftBranchLeaf, $rightBranchLeaf) {
+                        return $val['head'] === $leftBranchLeaf || $val['tail'] === $rightBranchLeaf ||
+                               $val['head'] === $rightBranchLeaf || $val['tail'] === $leftBranchLeaf;
                     });
 
                     foreach ($playableBones2 as $bone) {
@@ -247,7 +299,8 @@ class GameState
                     $this->player2->validPlays = $validPlayer2Plays;
 
                     // Check if Player1 cleared the win conditions
-                    if ($this->player1->hand->isEmpty()) {
+                    $hand1 = collect($this->player1->hand);
+                    if ($hand1->isEmpty()) {
                         $this->isGameOver = true;
                         $this->player1->isWinner = true;
 
@@ -264,10 +317,11 @@ class GameState
                     // Update validPlays for Player1 and clear it for Player2
                     $this->player2->validPlays = array();
                     $validPlayer1Plays = array();
+                    $hand1 = collect($this->player1->hand);
 
-                    $playableBones1 = $this->player1->hand->filter(function ($val, $key) use ($leftBranchLeaf, $rightBranchLeaf) {
-                        return $val->head === $leftBranchLeaf || $val->tail === $rightBranchLeaf ||
-                               $val->head === $rightBranchLeaf || $val->tail === $leftBranchLeaf;
+                    $playableBones1 = $hand1->filter(function ($val, $key) use ($leftBranchLeaf, $rightBranchLeaf) {
+                        return $val['head'] === $leftBranchLeaf || $val['tail'] === $rightBranchLeaf ||
+                               $val['head'] === $rightBranchLeaf || $val['tail'] === $leftBranchLeaf;
                     });
 
                     foreach ($playableBones1 as $bone) {
@@ -277,7 +331,8 @@ class GameState
                     $this->player1->validPlays = $validPlayer1Plays;
 
                     // Check if Player2 cleared the win conditions
-                    if ($this->player2->hand->isEmpty()) {
+                    $hand2 = collect($this->player2->hand);
+                    if ($hand2->isEmpty()) {
                         $this->isGameOver = true;
                         $this->player2->isWinner = true;
 
@@ -294,7 +349,5 @@ class GameState
             default:
                 // This shouldn't happen
         }
-
-        // Check win conditions here
     }
 }

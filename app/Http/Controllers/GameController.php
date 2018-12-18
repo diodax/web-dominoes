@@ -110,9 +110,9 @@ class GameController extends Controller
             return redirect()->route('home');
         }
 
-        //$gameState = $this->gameCenter->destroy($id, $request);
+        //$this->gameCenter->destroy($id, $request);
         $gameState = $this->gameCenter->get($id, $request);
-        echo json_encode($gameState);
+        //echo json_encode($gameState);
         //dump($gameState);
 
         return view('game.show', compact('gameState'));
@@ -170,9 +170,10 @@ class GameController extends Controller
         if ($gameState->isMoveValid(Auth::user()->username, $move)) {
             // Update board
             $gameState->updateGameState(Auth::user()->username, $move);
-            dump($gameState);
+            $gameState = $this->gameCenter->save($id, $gameState, $request);
+            return json_encode(true);
         }
-        return json_encode("Ok");
+        return json_encode(false);
     }
 
     public function checkTurn(Request $request, $id)

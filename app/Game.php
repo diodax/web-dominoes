@@ -12,7 +12,7 @@ class Game extends Model
      * @var array
      */
     protected $fillable = [
-        'player_1_id', 'player_2_id', 'score_to_win', 'rounds_completed', 'is_finished',
+        'player_1_id', 'player_2_id', 'score_to_win', 'rounds_completed', 'is_finished', 'game_state',
     ];
 
     public function player($id)

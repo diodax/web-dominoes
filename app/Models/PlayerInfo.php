@@ -14,7 +14,12 @@ class PlayerInfo
     public $hand;
     public $validPlays;
 
-    public function __construct(Player $player)
+    public function __construct()
+    {
+        //
+    }
+
+    public function create(Player $player)
     {
         $this->id = $player->id;
         $this->username = $player->user->username;
