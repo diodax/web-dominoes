@@ -53,20 +53,6 @@
                                     @php ($validPlayerPlays = $gameState->player2->validPlays)
                                 @endif
 
-                                {{-- <svg id="infoTab" x="900" y="700" width="200" height="400" style="overflow: visible;">
-                                        <!-- Rounded corner rect element -->
-                                        <foreignobject x="0" y="0" width="100%" height="100%">
-                                            <div class="card" style="background-color: #f1f7fa;">
-                                                <div class="row">
-                                                    <h5>{{ $gameState->player1->username }} VS {{ $gameState->player2->username }}</h5>
-                                                </div>
-                                                <button class="btn btn-primary" type="button">Draw</button>
-
-                                                <br/><br/><br/><br/><br/><br/>
-                                            </div>
-                                        </foreignobject>
-                                </svg> --}}
-
                                 <svg id="boneyard" x="900" y="730" width="200" height="150" style="overflow: visible;">
                                         <!-- Rounded corner rect element -->
                                         <foreignobject x="0" y="20" width="100%" height="100%">
@@ -173,6 +159,43 @@
                 window.timerId = setInterval(checkTurn, 2000);
             }
 
+            var isGameOver = @json($gameState->isGameOver);
+            var currentPlayer =@json(Auth::user()->username);
+            var player1 = @json($gameState->player1);
+            var player2 = @json($gameState->player2);
+            var winner = "";
+            var loser = "";
+
+            if (isGameOver && player1.isWinner) {
+                winner = player1.username;
+                loser = player2.username;
+            } else if (isGameOver && player2.isWinner) {
+                winner = player2.username;
+                loser = player1.username;
+            }
+
+            if (isGameOver && (currentPlayer === winner)) {
+                Swal({
+                    type: 'success',
+                    title: 'Congratulations!',
+                    text: 'You won the game!',
+                    confirmButtonText: 'Go Back to Chat Room',
+                }).then(function(){
+                    window.location.href = '{{URL::to('home')}}';
+                    return false;
+                });
+            } else if (isGameOver && (currentPlayer === loser)) {
+                Swal({
+                    type: 'error',
+                    title: 'Well...',
+                    text: 'You lost this game! Better luck next time.',
+                    confirmButtonText: 'Go Back to Chat Room',
+                }).then(function(){
+                    window.location.href = '{{URL::to('home')}}';
+                    return false;
+                });
+            }
+
             // window.zoomTiger = svgPanZoom('#game-board', {
             //     zoomEnabled: true,
             //     controlIconsEnabled: true,
@@ -224,7 +247,8 @@
                     submitTurnAction(e, "LAY", "R", bone);
                 });
             }
-            if (rootId == null || svgArray.includes(rootHead.toString()) || svgArray.includes(rootTail.toString())) {
+            if ((rootId == null || svgArray.includes(rootHead.toString()) || svgArray.includes(rootTail.toString())) &&
+                (leftBranchLeaf == null || rightBranchLeaf == null)) {
                 $('.rootLeaf').removeClass('invisible');
                 // Set a click event on the corresponding domino bone
                 $('#rootShadow').click(function(e){

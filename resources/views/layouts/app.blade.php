@@ -26,7 +26,7 @@
         </style>
     </head>
     <body>
-        @include('layouts.nav', ['navClass' => 'bg-primary'])
+        @include('layouts.nav', ['navClass' => 'bg-info'])
 
         <main class="main" role="main">
             <div class="py-5 bg-light">
@@ -40,7 +40,7 @@
         <script src="{{ url('/js/jquery-3.3.1.min.js') }}"></script>
         <script src="{{ url('/js/popper.min.js') }}"></script>
         <script src="{{ url('/js/bootstrap.min.js') }}"></script>
-        {{-- <script src="{{ asset('js/robust.js') }}"></script> --}}
+        <script src="{{ url('/js/sweetalert2.all.min.js') }}"></script>
         @yield('js')
     </body>
 </html>

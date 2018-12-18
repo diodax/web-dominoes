@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Game;
 use App\Player;
 use App\Bone;
+use App\User;
+use \stdClass;
 use App\Services\GameCenterService;
 use App\Models\PlayerInfo;
 use App\Models\Tree;
@@ -12,6 +14,7 @@ use App\Models\Node;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class GameController extends Controller
 {
@@ -194,5 +197,39 @@ class GameController extends Controller
         } else {
             return json_encode(false);
         }
+    }
+
+    public function retrieveOngoing() {
+        // Get the current user
+        $user = Auth::user();
+
+        // Get all the Players associated with that user
+        $players = Player::where('user_id', $user->id)->pluck('id')->toArray();
+
+        //dump($players);
+        // Get all the currently unfinished games with any of those players
+        $games = Game::where('is_finished', false)
+                    ->where(function ($query) use ($players) {
+                        $query->whereIn('player_1_id', $players)
+                            ->orWhereIn('player_2_id', $players);
+                    })->whereRaw('player_1_id != player_2_id')->get();
+        //dump($games);
+        $collection = collect();
+        foreach ($games as $game) {
+            $obj = new stdClass;
+            $obj->gameId = $game->id;
+
+            $user1Id = Player::find($game->player_1_id)->user_id;
+            $user2Id = Player::find($game->player_2_id)->user_id;
+
+            $user1 = User::find($user1Id);
+            $user2 = User::find($user2Id);
+
+            $obj->player1Username = $user1->username;
+            $obj->player2Username = $user2->username;
+            $collection->push($obj);
+        }
+        Log::info('Games collection: ', ['games' => $collection]);
+        return json_encode($collection);
     }
 }

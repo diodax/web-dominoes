@@ -25,8 +25,16 @@
             <h1 class="my-3 display-4 d-none d-lg-inline-block">Web Dominoes</h1>
             <span class="h1 my-3 d-inline-block d-lg-none">Web Dominoes</span>
             <p class="lead mb-3">Play dominoes with other players.</p>
-            <a class="btn btn-success btn-lg mr-lg-2 my-1" href="{{ route('register') }}" role="button">Sign up</a>
-            <a class="btn btn-outline-white btn-lg my-1" href="#" role="button">How to play?</a>
+
+            @guest
+                <a class="btn btn-success btn-lg mr-lg-2 my-1" href="{{ route('register') }}" role="button">Sign up</a>
+                <a class="btn btn-outline-white btn-lg my-1" href="{{ route('login') }}" role="button">Log in</a>
+            @else
+                <a class="btn btn-outline-white btn-lg mr-lg-2 my-1" href="{{ route('home') }}" role="button">Open Chat Room</a>
+            @endguest
+
+
+
           </div>
         </div>
       </div>

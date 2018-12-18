@@ -196,6 +196,21 @@ class GameState
                         $validPlayer1Plays[] = $bone['head'].'-'.$bone['tail'];
                     }
                     $this->player1->validPlays = $validPlayer1Plays;
+
+                    // Lose condition: if the boneyard is empty after the draw and the Player has no valid plays,
+                    // it's an instant defeat
+                    if (($this->boneyard->isEmpty()) && (empty($this->player1->validPlays))) {
+                        $this->isGameOver = true;
+                        $this->player2->isWinner = true;
+
+                        $game = Game::find($this->id);
+                        $game->is_finished = true;
+                        $game->save();
+
+                        $player = Player::find($this->player2->id);
+                        $player->is_winner = true;
+                        $player->save();
+                    }
                 } elseif ($username === $this->player2->username) {
                     $this->player2->hand = collect($this->player2->hand);
                     $this->player2->hand->push($bone);
@@ -212,6 +227,21 @@ class GameState
                         $validPlayer2Plays[] = $bone['head'].'-'.$bone['tail'];
                     }
                     $this->player2->validPlays = $validPlayer2Plays;
+
+                    // Lose condition: if the boneyard is empty after the draw and the Player has no valid plays,
+                    // it's an instant defeat
+                    if (($this->boneyard->isEmpty()) && (empty($this->player2->validPlays))) {
+                        $this->isGameOver = true;
+                        $this->player1->isWinner = true;
+
+                        $game = Game::find($this->id);
+                        $game->is_finished = true;
+                        $game->save();
+
+                        $player = Player::find($this->player1->id);
+                        $player->is_winner = true;
+                        $player->save();
+                    }
                 }
             break;
             case 'LAY':

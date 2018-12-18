@@ -45,22 +45,7 @@ class Tree
             $targetNode->leafValue = $targetNode->head;
         }
 
-        Log::info('Current status of parameters passed to this function when $targetNode->child is null:',
-            [
-                'targetNode' => $targetNode,
-                'nodeToPlace' => $nodeToPlace,
-                'parentLeaf' => $parentLeaf,
-                'branchDirection' => $branchDirection
-            ]);
-
         if(!is_null($targetNode->child)) {
-            Log::info('Parameters to send to placeNodeInChild() when $targetNode->child is not null: ',
-                [
-                    'targetNode' => $targetNode->child,
-                    'nodeToPlace' => $nodeToPlace,
-                    'parentLeaf' => $targetNode->leafValue,
-                    'branchDirection' => $branchDirection
-                ]);
             $this->placeNodeInChild($targetNode->child, $nodeToPlace, $targetNode->leafValue, $branchDirection);
         } else {
             if ($nodeToPlace->head === $nodeToPlace->tail) {

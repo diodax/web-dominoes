@@ -1,4 +1,4 @@
-<nav class="navbar navbar-lg navbar-expand-lg navbar-dark" style="background-color: #6200EE !important;">
+<nav class="navbar navbar-lg navbar-expand-lg navbar-dark {{ $navClass }}"> <!--style="background-color: #6200EE !important;"-->
     <div class="container">
         <a class="navbar-brand" href="{{ url('/') }}">
             {{-- {{ config('app.name', 'Laravel') }} --}}
@@ -12,7 +12,7 @@
             <!-- Right Side Of Navbar -->
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url('/') }}">Overview</a>
+                    <a class="nav-link" href="{{ route('home') }}">Chat Room</a>
                 </li>
                 <li class="nav-item active">
                     <a class="nav-link" href="{{ url('/') }}">Rules</a>
