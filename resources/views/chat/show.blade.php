@@ -111,7 +111,8 @@
         }
 
         // Websocket
-        let ws = new WebSocket("ws://localhost:8090");
+        let hostUrl = location.origin.replace(/^http/, 'ws') + ":8090";
+        let ws = new WebSocket(hostUrl);
         ws.onopen = function (e) {
             // Connect to websocket
             console.log('Connected to websocket');
