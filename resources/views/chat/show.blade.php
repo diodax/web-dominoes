@@ -112,7 +112,7 @@
 
         // Websocket
         let hostUrl = location.origin.replace(/^http/, 'ws') + ":8090";
-        let ws = new WebSocket(hostUrl);
+        let ws = new WebSocket("ws://web-dominoes.test:8090");
         ws.onopen = function (e) {
             // Connect to websocket
             console.log('Connected to websocket');
