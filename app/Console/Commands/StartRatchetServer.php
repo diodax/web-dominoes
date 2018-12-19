@@ -47,7 +47,7 @@ class StartRatchetServer extends Command
         //Clears the ChatMember table before starting the server
         ChatMember::truncate();
 
-        $port = env('RATCHET_PORT') ? env('RATCHET_PORT') : 8090;
+        $port = env('RATCHET_PORT') ? env('RATCHET_PORT') : 80;
         echo "Ratchet server started on localhost:$port \n";
         $loop = LoopFactory::create();
         $socket = new Reactor($port, $loop);

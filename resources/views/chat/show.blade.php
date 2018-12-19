@@ -111,7 +111,7 @@
         }
 
         // Websocket
-        let hostUrl = location.origin.replace(/^http/, 'ws') + ":8090";
+        let hostUrl = location.origin.replace(/^http/, 'ws') + ":80";
         let ws = new WebSocket(hostUrl);
         ws.onopen = function (e) {
             // Connect to websocket
