@@ -112,7 +112,7 @@
 
         // Websocket
         let hostUrl = location.origin.replace(/^http/, 'ws') + ":8090";
-        let ws = new WebSocket("ws://af9169d3.ngrok.io:8090");
+        let ws = new WebSocket(hostUrl);
         ws.onopen = function (e) {
             // Connect to websocket
             console.log('Connected to websocket');
