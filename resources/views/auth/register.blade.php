@@ -6,7 +6,7 @@
 
         <div class="text-center">
             <h1 class="h3">Get started</h1>
-            <p class="lead">Start creating the best possible user experience for you customers.</p>
+            <p class="lead">Create an account to continue</p>
         </div>
 
         <div class="card">

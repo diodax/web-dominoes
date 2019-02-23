@@ -18,15 +18,19 @@
         <!-- Styles -->
         <link href="{{ asset('css/robust.css') }}" rel="stylesheet">
         <style type="text/css">.medium-zoom-overlay{position:fixed;top:0;right:0;bottom:0;left:0;opacity:0;transition:opacity .3s;will-change:opacity}.medium-zoom--open .medium-zoom-overlay{cursor:pointer;cursor:zoom-out;opacity:1}.medium-zoom-image{cursor:pointer;cursor:zoom-in;transition:transform .3s}.medium-zoom-image--open{position:relative;cursor:pointer;cursor:zoom-out;will-change:transform}</style>
+        <style>
+            .svg-text {
+			    font-family: Lato,sans-serif;
+			    font-size:22px;
+		    }
+        </style>
     </head>
     <body>
-        @include('layouts.nav', ['navClass' => 'bg-primary'])
+        @include('layouts.nav', ['navClass' => 'bg-info'])
 
         <main class="main" role="main">
             <div class="py-5 bg-light">
-                <div class="container">
-                    @yield('content')
-                </div>
+                @yield('content')
             </div>
         </main>
 
@@ -36,7 +40,7 @@
         <script src="{{ url('/js/jquery-3.3.1.min.js') }}"></script>
         <script src="{{ url('/js/popper.min.js') }}"></script>
         <script src="{{ url('/js/bootstrap.min.js') }}"></script>
-        {{-- <script src="{{ asset('js/robust.js') }}"></script> --}}
+        <script src="{{ url('/js/sweetalert2.all.min.js') }}"></script>
         @yield('js')
     </body>
 </html>
